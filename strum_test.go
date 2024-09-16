@@ -5,15 +5,15 @@ import (
 	"testing"
 )
 
-func Test_StringUnmarshaller_UnmarshalString(t *testing.T) {
+func TestUnmarshal_Bounds(t *testing.T) {
 	t.Run("assigns string correctly with startIdx and endIdx", func(t *testing.T) {
 		const line = "lkjasldthis is a testoi09asdfhj"
 
 		test := &struct {
-			Val string `linePos:"7-21"`
+			Val string `strum:"7,21"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString(line, test)
+		err := Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
@@ -23,10 +23,10 @@ func Test_StringUnmarshaller_UnmarshalString(t *testing.T) {
 		const line = "lkjasldoi09asdfhjthis is a test"
 
 		test := &struct {
-			Val string `linePos:"17"`
+			Val string `strum:"17"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString(line, test)
+		err := Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
@@ -36,10 +36,10 @@ func Test_StringUnmarshaller_UnmarshalString(t *testing.T) {
 		const line = "lkjasldoi09asdfhjthis is a test"
 
 		test := &struct {
-			Val string `linePos:"17-31"`
+			Val string `strum:"17,31"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString(line, test)
+		err := Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
@@ -49,10 +49,10 @@ func Test_StringUnmarshaller_UnmarshalString(t *testing.T) {
 		const line = "this is a testlkjasldoi09asdfhj"
 
 		test := &struct {
-			Val string `linePos:"-14"`
+			Val string `strum:",14"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString(line, test)
+		err := Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
@@ -62,102 +62,93 @@ func Test_StringUnmarshaller_UnmarshalString(t *testing.T) {
 		const line = "this is a testlkjasldoi09asdfhj"
 
 		test := &struct {
-			Val string `linePos:"0-14"`
+			Val string `strum:"0,14"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString(line, test)
+		err := Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
 	})
 
 	t.Run("error when given a non-pointer", func(t *testing.T) {
-		err := (&StringUnmarshaller{}).UnmarshalString("", struct{}{})
+		err := Unmarshal("", struct{}{})
 		require.ErrorContains(t, err, "not a pointer")
 	})
 
 	t.Run("error when given a nil pointer", func(t *testing.T) {
 		var p *string
-		err := (&StringUnmarshaller{}).UnmarshalString("", p)
+		err := Unmarshal("", p)
 		require.ErrorContains(t, err, "nil pointer")
 	})
 
 	t.Run("error when pointer points to something other than a struct", func(t *testing.T) {
 		p := &[]byte{}
-		err := (&StringUnmarshaller{}).UnmarshalString("", p)
+		err := Unmarshal("", p)
 		require.ErrorContains(t, err, "not a struct")
 	})
 
 	t.Run("error when tag value has extra elements", func(t *testing.T) {
 		test := &struct {
-			Val string `linePos:"0-14-"`
+			Val string `strum:"0,14,"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("", test)
-		require.ErrorContains(t, err, "invalid index format")
+		err := Unmarshal("", test)
+		require.ErrorContains(t, err, "invalid strum format")
 	})
 
 	t.Run("error when startIdx has invalid value", func(t *testing.T) {
 		test := &struct {
-			Val string `linePos:"invalid"`
+			Val string `strum:"invalid"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("", test)
+		err := Unmarshal("", test)
 		require.ErrorContains(t, err, "invalid start index")
 	})
 
 	t.Run("error when endIdx has invalid value", func(t *testing.T) {
 		test := &struct {
-			Val string `linePos:"-invalid"`
+			Val string `strum:",invalid"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("", test)
+		err := Unmarshal("", test)
 		require.ErrorContains(t, err, "invalid end index")
 	})
 
 	t.Run("error when startIdx > line length", func(t *testing.T) {
 		test := &struct {
-			Val string `linePos:"1000"`
+			Val string `strum:"1000"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("", test)
-		require.ErrorContains(t, err, "start index 1000 greater than line length")
+		err := Unmarshal("", test)
+		require.ErrorContains(t, err, "out of bounds")
 	})
 
 	t.Run("error when startIdx > endIdx", func(t *testing.T) {
 		test := &struct {
-			Val string `linePos:"2-1"`
+			Val string `strum:"2,1"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("      ", test)
-		require.ErrorContains(t, err, "end index smaller than start index")
+		err := Unmarshal("      ", test)
+		require.ErrorContains(t, err, "end index must be greater or equal to start index")
 	})
 
 	t.Run("error if startIdx > line length", func(t *testing.T) {
 		test := &struct {
-			Val string `linePos:"1"`
+			Val string `strum:"1"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("", test)
-		require.ErrorContains(t, err, "start index 1 greater than line length 0")
+		err := Unmarshal("", test)
+		require.ErrorContains(t, err, "start index out of bounds")
 	})
 
 	t.Run("error if endIdx > line length", func(t *testing.T) {
 		test := &struct {
-			Val string `linePos:"0-100"`
+			Val string `strum:"0,100"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("", test)
-		require.ErrorContains(t, err, "end index 100 greater than line length 0")
-	})
-
-	t.Run("error if field is not of type string", func(t *testing.T) {
-		test := &struct {
-			Val int `linePos:"0-1"`
-		}{}
-
-		err := (&StringUnmarshaller{}).UnmarshalString("a", test)
-		require.ErrorContains(t, err, `field "Val" is not a string type`)
+		err := Unmarshal("", test)
+		require.ErrorContains(t, err, "end index out of bounds")
 	})
 
 	t.Run("ignores string fields without struct tag", func(t *testing.T) {
@@ -165,7 +156,7 @@ func Test_StringUnmarshaller_UnmarshalString(t *testing.T) {
 			Val string `json:"val"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("a", test)
+		err := Unmarshal("a", test)
 		require.NoError(t, err)
 		require.Empty(t, test.Val)
 	})
@@ -175,8 +166,160 @@ func Test_StringUnmarshaller_UnmarshalString(t *testing.T) {
 			val string `json:"val"`
 		}{}
 
-		err := (&StringUnmarshaller{}).UnmarshalString("a", test)
+		err := Unmarshal("a", test)
 		require.ErrorContains(t, err, "cannot assign any value to field")
 		require.Empty(t, test.val)
 	})
+}
+
+func TestUnmarshal_primitives(t *testing.T) {
+	t.Run("int", func(t *testing.T) {
+		test := &struct {
+			Val int `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, 1, test.Val)
+	})
+
+	t.Run("int8", func(t *testing.T) {
+		test := &struct {
+			Val int8 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, int8(1), test.Val)
+	})
+
+	t.Run("int16", func(t *testing.T) {
+		test := &struct {
+			Val int16 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, int16(1), test.Val)
+	})
+
+	t.Run("int32", func(t *testing.T) {
+		test := &struct {
+			Val int32 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, int32(1), test.Val)
+	})
+
+	t.Run("int64", func(t *testing.T) {
+		test := &struct {
+			Val int64 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, int64(1), test.Val)
+	})
+
+	t.Run("uint", func(t *testing.T) {
+		test := &struct {
+			Val uint `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint(1), test.Val)
+	})
+
+	t.Run("uint8", func(t *testing.T) {
+		test := &struct {
+			Val uint8 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint8(1), test.Val)
+	})
+
+	t.Run("uint16", func(t *testing.T) {
+		test := &struct {
+			Val uint16 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint16(1), test.Val)
+	})
+
+	t.Run("uint32", func(t *testing.T) {
+		test := &struct {
+			Val uint32 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint32(1), test.Val)
+	})
+
+	t.Run("uint64", func(t *testing.T) {
+		test := &struct {
+			Val uint64 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint64(1), test.Val)
+	})
+
+	t.Run("float32", func(t *testing.T) {
+		test := &struct {
+			Val float32 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, float32(1), test.Val)
+	})
+
+	t.Run("float64", func(t *testing.T) {
+		test := &struct {
+			Val float64 `strum:"0"`
+		}{}
+
+		err := Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, float64(1), test.Val)
+	})
+
+	t.Run("bool", func(t *testing.T) {
+		test := &struct {
+			Val bool `strum:"0"`
+		}{}
+
+		err := Unmarshal("true", test)
+		require.NoError(t, err)
+		require.True(t, test.Val)
+	})
+
+	t.Run("string", func(t *testing.T) {
+		test := &struct {
+			Val string `strum:"0"`
+		}{}
+
+		err := Unmarshal("abc", test)
+		require.NoError(t, err)
+		require.Equal(t, "abc", test.Val)
+	})
+}
+
+func TestUnmarshal_delimiter(t *testing.T) {
+	test := &struct {
+		Val string `strum:"1-3"`
+	}{}
+
+	err := Unmarshal("abcde", test, WithDelimiter("-"))
+	require.NoError(t, err)
+	require.Equal(t, "bc", test.Val)
 }
