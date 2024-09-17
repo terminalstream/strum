@@ -188,7 +188,7 @@ func TestUnmarshal_indexes(t *testing.T) { //nolint:funlen
 	})
 }
 
-func TestUnmarshal_builtin(t *testing.T) { //nolint:funlen
+func TestUnmarshal_builtin(t *testing.T) { //nolint:funlen,maintidx
 	one := 1
 
 	t.Run("int", func(t *testing.T) {
