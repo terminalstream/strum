@@ -19,6 +19,7 @@ linters-settings:
   gofmt:
     simplify: true
   goimports:
+    local-prefixes: github.com/terminalstream/strum
   gocyclo:
     min-complexity: 7
   dupl:
@@ -40,6 +41,13 @@ linters-settings:
     simple: true
     range-loops: true
     for-loops: true
+  revive:
+    enable-all-rules: true
+  gci:
+    sections:
+      - standard
+      - default
+      - localmodule
   gocritic:
     enabled-tags:
       - diagnostic
