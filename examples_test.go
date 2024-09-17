@@ -1,6 +1,24 @@
-package strum
+// Copyright 2024 Terminal Stream Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-import "fmt"
+package strum_test
+
+import (
+	"fmt"
+
+	"github.com/terminalstream/strum"
+)
 
 func ExampleUnmarshal() {
 	const data = "BobDolebob.dole@example.com123Grace StreetUnit 123TorontoOntarioM5A1A1true"
@@ -18,7 +36,7 @@ func ExampleUnmarshal() {
 		Verified     bool   `strum:"70,74"`
 	}{}
 
-	err := Unmarshal(data, &contact)
+	err := strum.Unmarshal(data, &contact)
 	if err != nil {
 		panic(err)
 	}
@@ -54,9 +72,13 @@ func ExampleUnmarshal_formatter() {
 		Val int `strform:"lettersToNumbers" strum:"0"`
 	}{}
 
-	err := Unmarshal(data, &test, WithFormatter("lettersToNumbers", func(string) (string, error) {
-		return "123", nil
-	}))
+	err := strum.Unmarshal(
+		data,
+		&test,
+		strum.WithFormatter("lettersToNumbers", func(string) (string, error) {
+			return "123", nil
+		}),
+	)
 	if err != nil {
 		panic(err)
 	}
