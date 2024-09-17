@@ -96,6 +96,15 @@ func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyc
 		switch f.Type.Kind() {
 		case reflect.Ptr:
 			valuer, isBuiltin = builtinPointers[f.Type.Elem().Kind()]
+		case reflect.Slice:
+			if f.Type.Elem().Kind() != reflect.Uint8 {
+				continue
+			}
+
+			valuer = func(s string) (reflect.Value, error) {
+				return reflect.ValueOf([]byte(s)), nil
+			}
+			isBuiltin = true
 		default:
 			valuer, isBuiltin = builtin[f.Type.Kind()]
 		}

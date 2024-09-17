@@ -470,6 +470,16 @@ func TestUnmarshal_builtin(t *testing.T) { //nolint:funlen,maintidx
 		require.NoError(t, err)
 		require.Equal(t, "abc", *test.Val)
 	})
+
+	t.Run("[]byte", func(t *testing.T) {
+		test := &struct {
+			Val []byte `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("abc", test)
+		require.NoError(t, err)
+		require.Equal(t, []byte("abc"), test.Val)
+	})
 }
 
 func TestUnmarshal_delimiter(t *testing.T) {
