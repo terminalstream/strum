@@ -1,11 +1,27 @@
-package strum
+// Copyright 2024 Terminal Stream Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package strum_test
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/terminalstream/strum"
 )
 
-func TestUnmarshal_Bounds(t *testing.T) {
+func TestUnmarshal_indexes(t *testing.T) { //nolint:funlen
 	t.Run("assigns string correctly with startIdx and endIdx", func(t *testing.T) {
 		const line = "lkjasldthis is a testoi09asdfhj"
 
@@ -13,7 +29,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"7,21"`
 		}{}
 
-		err := Unmarshal(line, test)
+		err := strum.Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
@@ -26,7 +42,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"17"`
 		}{}
 
-		err := Unmarshal(line, test)
+		err := strum.Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
@@ -39,7 +55,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"17,31"`
 		}{}
 
-		err := Unmarshal(line, test)
+		err := strum.Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
@@ -52,7 +68,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:",14"`
 		}{}
 
-		err := Unmarshal(line, test)
+		err := strum.Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
@@ -65,26 +81,26 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"0,14"`
 		}{}
 
-		err := Unmarshal(line, test)
+		err := strum.Unmarshal(line, test)
 		require.NoError(t, err)
 
 		require.Equal(t, "this is a test", test.Val)
 	})
 
 	t.Run("error when given a non-pointer", func(t *testing.T) {
-		err := Unmarshal("", struct{}{})
+		err := strum.Unmarshal("", struct{}{})
 		require.ErrorContains(t, err, "not a pointer")
 	})
 
 	t.Run("error when given a nil pointer", func(t *testing.T) {
 		var p *string
-		err := Unmarshal("", p)
+		err := strum.Unmarshal("", p)
 		require.ErrorContains(t, err, "nil pointer")
 	})
 
 	t.Run("error when pointer points to something other than a struct", func(t *testing.T) {
 		p := &[]byte{}
-		err := Unmarshal("", p)
+		err := strum.Unmarshal("", p)
 		require.ErrorContains(t, err, "not a struct")
 	})
 
@@ -93,7 +109,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"0,14,"`
 		}{}
 
-		err := Unmarshal("", test)
+		err := strum.Unmarshal("", test)
 		require.ErrorContains(t, err, "invalid strum format")
 	})
 
@@ -102,7 +118,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"invalid"`
 		}{}
 
-		err := Unmarshal("", test)
+		err := strum.Unmarshal("", test)
 		require.ErrorContains(t, err, "invalid start index")
 	})
 
@@ -111,7 +127,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:",invalid"`
 		}{}
 
-		err := Unmarshal("", test)
+		err := strum.Unmarshal("", test)
 		require.ErrorContains(t, err, "invalid end index")
 	})
 
@@ -120,7 +136,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"1000"`
 		}{}
 
-		err := Unmarshal("", test)
+		err := strum.Unmarshal("", test)
 		require.ErrorContains(t, err, "out of bounds")
 	})
 
@@ -129,7 +145,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"2,1"`
 		}{}
 
-		err := Unmarshal("      ", test)
+		err := strum.Unmarshal("      ", test)
 		require.ErrorContains(t, err, "end index must be greater or equal to start index")
 	})
 
@@ -138,7 +154,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"1"`
 		}{}
 
-		err := Unmarshal("", test)
+		err := strum.Unmarshal("", test)
 		require.ErrorContains(t, err, "start index out of bounds")
 	})
 
@@ -147,7 +163,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `strum:"0,100"`
 		}{}
 
-		err := Unmarshal("", test)
+		err := strum.Unmarshal("", test)
 		require.ErrorContains(t, err, "end index out of bounds")
 	})
 
@@ -156,7 +172,7 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			Val string `json:"val"`
 		}{}
 
-		err := Unmarshal("a", test)
+		err := strum.Unmarshal("a", test)
 		require.NoError(t, err)
 		require.Empty(t, test.Val)
 	})
@@ -166,19 +182,19 @@ func TestUnmarshal_Bounds(t *testing.T) {
 			val string `json:"val"`
 		}{}
 
-		err := Unmarshal("a", test)
+		err := strum.Unmarshal("a", test)
 		require.ErrorContains(t, err, "cannot assign any value to field")
 		require.Empty(t, test.val)
 	})
 }
 
-func TestUnmarshal_primitives(t *testing.T) {
+func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 	t.Run("int", func(t *testing.T) {
 		test := &struct {
 			Val int `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, 1, test.Val)
 	})
@@ -188,7 +204,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val int8 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, int8(1), test.Val)
 	})
@@ -198,7 +214,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val int16 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, int16(1), test.Val)
 	})
@@ -208,7 +224,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val int32 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, int32(1), test.Val)
 	})
@@ -218,7 +234,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val int64 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, int64(1), test.Val)
 	})
@@ -228,7 +244,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val uint `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, uint(1), test.Val)
 	})
@@ -238,7 +254,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val uint8 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, uint8(1), test.Val)
 	})
@@ -248,7 +264,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val uint16 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, uint16(1), test.Val)
 	})
@@ -258,7 +274,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val uint32 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, uint32(1), test.Val)
 	})
@@ -268,7 +284,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val uint64 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, uint64(1), test.Val)
 	})
@@ -278,7 +294,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val float32 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, float32(1), test.Val)
 	})
@@ -288,7 +304,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val float64 `strum:"0"`
 		}{}
 
-		err := Unmarshal("1", test)
+		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, float64(1), test.Val)
 	})
@@ -298,7 +314,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val bool `strum:"0"`
 		}{}
 
-		err := Unmarshal("true", test)
+		err := strum.Unmarshal("true", test)
 		require.NoError(t, err)
 		require.True(t, test.Val)
 	})
@@ -308,7 +324,7 @@ func TestUnmarshal_primitives(t *testing.T) {
 			Val string `strum:"0"`
 		}{}
 
-		err := Unmarshal("abc", test)
+		err := strum.Unmarshal("abc", test)
 		require.NoError(t, err)
 		require.Equal(t, "abc", test.Val)
 	})
@@ -319,7 +335,7 @@ func TestUnmarshal_delimiter(t *testing.T) {
 		Val string `strum:"1-3"`
 	}{}
 
-	err := Unmarshal("abcde", test, WithDelimiter("-"))
+	err := strum.Unmarshal("abcde", test, strum.WithDelimiter("-"))
 	require.NoError(t, err)
 	require.Equal(t, "bc", test.Val)
 }

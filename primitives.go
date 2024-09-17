@@ -1,3 +1,17 @@
+// Copyright 2024 Terminal Stream Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package strum
 
 import (
@@ -7,6 +21,7 @@ import (
 
 type primitiveValuer func(s string) (*reflect.Value, error)
 
+//nolint:godox
 // TODO support []byte
 
 var primitiveValuers = map[reflect.Kind]primitiveValuer{
@@ -18,50 +33,62 @@ var primitiveValuers = map[reflect.Kind]primitiveValuer{
 	},
 	reflect.Int8: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseInt(s, 10, 8)
+
 		return valueOrError(castInt[int8](n, err))
 	},
 	reflect.Int16: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseInt(s, 10, 16)
+
 		return valueOrError(castInt[int16](n, err))
 	},
 	reflect.Int32: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseInt(s, 10, 32)
+
 		return valueOrError(castInt[int32](n, err))
 	},
 	reflect.Int64: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseInt(s, 10, 64)
+
 		return valueOrError(castInt[int64](n, err))
 	},
 	reflect.Uint: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseUint(s, 10, 64)
+
 		return valueOrError(castUint[uint](n, err))
 	},
 	reflect.Uint8: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseUint(s, 10, 8)
+
 		return valueOrError(castUint[uint8](n, err))
 	},
 	reflect.Uint16: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseUint(s, 10, 16)
+
 		return valueOrError(castUint[uint16](n, err))
 	},
 	reflect.Uint32: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseUint(s, 10, 32)
+
 		return valueOrError(castUint[uint32](n, err))
 	},
 	reflect.Uint64: func(s string) (*reflect.Value, error) {
 		n, err := strconv.ParseUint(s, 10, 64)
+
 		return valueOrError(castUint[uint64](n, err))
 	},
 	reflect.Float32: func(s string) (*reflect.Value, error) {
 		f, err := strconv.ParseFloat(s, 32)
+
 		return valueOrError(castFloat[float32](f, err))
 	},
 	reflect.Float64: func(s string) (*reflect.Value, error) {
 		f, err := strconv.ParseFloat(s, 64)
+
 		return valueOrError(castFloat[float64](f, err))
 	},
 	reflect.String: func(s string) (*reflect.Value, error) {
 		v := reflect.ValueOf(s)
+
 		return &v, nil
 	},
 }

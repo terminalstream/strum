@@ -1,3 +1,17 @@
+// Copyright 2024 Terminal Stream Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package strum
 
 import (
@@ -11,7 +25,7 @@ import (
 const (
 	// TagName is this lib's struct tag.
 	TagName = "strum"
-	// DefaultDelimiter is the the default one used to separate the start and end indexes.
+	// DefaultDelimiter is the default one used to separate the start and end indexes.
 	DefaultDelimiter = ","
 )
 
@@ -35,12 +49,14 @@ func WithDelimiter(delimiter string) Option {
 
 // Unmarshal unmarshals strings.
 //
-// If a field is tagged with 'strum' it assigns the indicated substring, otherwise the field is ignored.
+// If a field is tagged with 'strum' it assigns the indicated substring, otherwise the field is
+// ignored.
 //
-// 'strum' has the format `strum:"startIdx{delimiter}endIdx"` where both startIdx and endIdx are optional, but at least
-// one must be present. {delimiter} is specified by the user (default is ","). {delimiter} is mandatory unless only
-// startIdx is provided. Errors are raised if startIdx or endIdx exceed the string's bounds.
-func Unmarshal(line string, v any, opts ...Option) error {
+// 'strum' has the format `strum:"startIdx{delimiter}endIdx"` where both startIdx and endIdx are
+// optional, but at least one must be present. {delimiter} is specified by the user
+// (default is ","). {delimiter} is mandatory unless only startIdx is provided. Errors are raised
+// if startIdx or endIdx exceed the string's bounds.
+func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyclo
 	options := *defaultOptions
 
 	for i := range opts {
@@ -49,29 +65,23 @@ func Unmarshal(line string, v any, opts ...Option) error {
 
 	value := reflect.ValueOf(v)
 
-	if value.Kind() != reflect.Ptr {
-		return fmt.Errorf("not a pointer: %s", reflect.TypeOf(v).Kind())
-	}
-
-	if value.IsNil() {
-		return errors.New("nil pointer")
-	}
-
-	if value.Elem().Kind() != reflect.Struct {
-		return fmt.Errorf("not a struct: %s", reflect.TypeOf(v).Elem().Kind())
+	err := validateInput(v, value)
+	if err != nil {
+		return err
 	}
 
 	value = value.Elem()
-
 	t := value.Type()
 
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		fv := value.Field(i)
 
+		//nolint:godox
 		// TODO support pointers to fields
 
 		if !fv.CanSet() {
+			//nolint:godox
 			// TODO should we skip fields we can't set instead of returning an error?
 			return fmt.Errorf("cannot assign any value to field %q", f.Name)
 		}
@@ -102,7 +112,9 @@ func Unmarshal(line string, v any, opts ...Option) error {
 
 		val, err := valuer(line[startIdx:endIdx])
 		if err != nil {
-			return fmt.Errorf("cannot assign value %q to field %q: %w", line[startIdx:endIdx], f.Name, err)
+			return fmt.Errorf(
+				"cannot assign value %q to field %q: %w", line[startIdx:endIdx], f.Name, err,
+			)
 		}
 
 		fv.Set(*val)
@@ -139,6 +151,22 @@ func indexes(tagValue, delimiter string) (int, int, error) {
 	}
 
 	return startIdx, endIdx, nil
+}
+
+func validateInput(v any, value reflect.Value) error {
+	if value.Kind() != reflect.Ptr {
+		return fmt.Errorf("not a pointer: %s", reflect.ValueOf(v).Kind())
+	}
+
+	if value.IsNil() {
+		return errors.New("nil pointer")
+	}
+
+	if value.Elem().Kind() != reflect.Struct {
+		return fmt.Errorf("not a struct: %s", reflect.ValueOf(v).Kind())
+	}
+
+	return nil
 }
 
 func validateIndexes(line string, startIdx, endIdx int) error {
