@@ -53,7 +53,9 @@ func WithDelimiter(delimiter string) Option {
 	}
 }
 
-// WithFormatter registers the given formater under the given name.
+// WithFormatter registers the given Formatter under the given name.
+// Fields tagged with FormatterTagName must have names registered via this Option otherwise
+// Unmarshal will fail.
 func WithFormatter(name string, transformer Formatter) Option {
 	return func(o *options) {
 		if o.formatters == nil {
@@ -64,15 +66,18 @@ func WithFormatter(name string, transformer Formatter) Option {
 	}
 }
 
-// Unmarshal unmarshals strings.
+// Unmarshal decodes strings into structs.
 //
 // If a field is tagged with 'strum' it assigns the indicated substring, otherwise the field is
 // ignored.
 //
 // 'strum' has the format `strum:"startIdx{delimiter}endIdx"` where both startIdx and endIdx are
 // integers and are optional, but at least one must be present. {delimiter} is specified by the user
-// (default is ","). {delimiter} is mandatory unless only startIdx is provided. Errors are raised
-// if startIdx or endIdx exceed the string's bounds.
+// (default is DefaultDelimiter). {delimiter} is mandatory unless only startIdx is provided.
+// Errors are raised if startIdx or endIdx exceed the string's bounds.
+//
+// If the field is tagged with FormatterTagName then its substring will be formatted prior to
+// decoding (see the WithFormatter Option).
 func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyclo
 	options := *defaultOptions
 
