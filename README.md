@@ -1,7 +1,7 @@
 [![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/terminalstream/strum)
 [![Build Status](https://github.com/terminalstream/strum/actions/workflows/ci.yaml/badge.svg)](https://github.com/terminalstream/strum/actions/workflows/ci.yaml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/terminalstream/strum/graph/badge.svg?token=ECVKQ7J3JZ)](https://codecov.io/gh/terminalstream/strum)
-[![Go Report Card](https://goreportcard.com/badge/github.com/terminalstream/strum?style=flat-square)](https://goreportcard.com/report/github.com/llorllale/go-gitlint)
+[![Go Report Card](https://goreportcard.com/badge/github.com/terminalstream/strum?style=flat-square)](https://goreportcard.com/report/github.com/terminalstream/strum)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/terminalstream/strum/main/LICENSE)
 
 # [STR]ing [U]n[M]arshaller
