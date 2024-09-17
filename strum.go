@@ -77,9 +77,6 @@ func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyc
 		f := t.Field(i)
 		fv := value.Field(i)
 
-		//nolint:godox
-		// TODO support pointers to fields
-
 		if !fv.CanSet() {
 			//nolint:godox
 			// TODO should we skip fields we can't set instead of returning an error?
@@ -88,6 +85,22 @@ func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyc
 
 		tagValue, ok := f.Tag.Lookup(TagName)
 		if !ok {
+			continue
+		}
+
+		var (
+			valuer    primitiveValuer
+			isBuiltin bool
+		)
+
+		switch f.Type.Kind() {
+		case reflect.Ptr:
+			valuer, isBuiltin = builtinPointers[f.Type.Elem().Kind()]
+		default:
+			valuer, isBuiltin = builtin[f.Type.Kind()]
+		}
+
+		if !isBuiltin {
 			continue
 		}
 
@@ -105,11 +118,6 @@ func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyc
 			return fmt.Errorf("invalid indexes on field %q: %w", f.Name, err)
 		}
 
-		valuer, primitive := primitiveValuers[f.Type.Kind()]
-		if !primitive {
-			continue
-		}
-
 		val, err := valuer(line[startIdx:endIdx])
 		if err != nil {
 			return fmt.Errorf(
@@ -117,7 +125,7 @@ func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyc
 			)
 		}
 
-		fv.Set(*val)
+		fv.Set(val)
 	}
 
 	return nil

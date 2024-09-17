@@ -188,7 +188,9 @@ func TestUnmarshal_indexes(t *testing.T) { //nolint:funlen
 	})
 }
 
-func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
+func TestUnmarshal_builtin(t *testing.T) { //nolint:funlen
+	one := 1
+
 	t.Run("int", func(t *testing.T) {
 		test := &struct {
 			Val int `strum:"0"`
@@ -197,6 +199,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, 1, test.Val)
+	})
+
+	t.Run("*int", func(t *testing.T) {
+		test := &struct {
+			Val *int `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, &one, test.Val)
 	})
 
 	t.Run("int8", func(t *testing.T) {
@@ -209,6 +221,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		require.Equal(t, int8(1), test.Val)
 	})
 
+	t.Run("*int8", func(t *testing.T) {
+		test := &struct {
+			Val *int8 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, int8(one), *test.Val)
+	})
+
 	t.Run("int16", func(t *testing.T) {
 		test := &struct {
 			Val int16 `strum:"0"`
@@ -217,6 +239,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, int16(1), test.Val)
+	})
+
+	t.Run("*int16", func(t *testing.T) {
+		test := &struct {
+			Val *int16 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, int16(1), *test.Val)
 	})
 
 	t.Run("int32", func(t *testing.T) {
@@ -229,6 +261,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		require.Equal(t, int32(1), test.Val)
 	})
 
+	t.Run("*int32", func(t *testing.T) {
+		test := &struct {
+			Val *int32 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, int32(1), *test.Val)
+	})
+
 	t.Run("int64", func(t *testing.T) {
 		test := &struct {
 			Val int64 `strum:"0"`
@@ -237,6 +279,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, int64(1), test.Val)
+	})
+
+	t.Run("*int64", func(t *testing.T) {
+		test := &struct {
+			Val *int64 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, int64(1), *test.Val)
 	})
 
 	t.Run("uint", func(t *testing.T) {
@@ -249,6 +301,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		require.Equal(t, uint(1), test.Val)
 	})
 
+	t.Run("*uint", func(t *testing.T) {
+		test := &struct {
+			Val *uint `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint(1), *test.Val)
+	})
+
 	t.Run("uint8", func(t *testing.T) {
 		test := &struct {
 			Val uint8 `strum:"0"`
@@ -257,6 +319,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, uint8(1), test.Val)
+	})
+
+	t.Run("*uint8", func(t *testing.T) {
+		test := &struct {
+			Val *uint8 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint8(1), *test.Val)
 	})
 
 	t.Run("uint16", func(t *testing.T) {
@@ -269,6 +341,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		require.Equal(t, uint16(1), test.Val)
 	})
 
+	t.Run("*uint16", func(t *testing.T) {
+		test := &struct {
+			Val *uint16 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint16(1), *test.Val)
+	})
+
 	t.Run("uint32", func(t *testing.T) {
 		test := &struct {
 			Val uint32 `strum:"0"`
@@ -277,6 +359,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, uint32(1), test.Val)
+	})
+
+	t.Run("*uint32", func(t *testing.T) {
+		test := &struct {
+			Val *uint32 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint32(1), *test.Val)
 	})
 
 	t.Run("uint64", func(t *testing.T) {
@@ -289,6 +381,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		require.Equal(t, uint64(1), test.Val)
 	})
 
+	t.Run("*uint64", func(t *testing.T) {
+		test := &struct {
+			Val *uint64 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, uint64(1), *test.Val)
+	})
+
 	t.Run("float32", func(t *testing.T) {
 		test := &struct {
 			Val float32 `strum:"0"`
@@ -297,6 +399,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		err := strum.Unmarshal("1", test)
 		require.NoError(t, err)
 		require.Equal(t, float32(1), test.Val)
+	})
+
+	t.Run("*float32", func(t *testing.T) {
+		test := &struct {
+			Val *float32 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, float32(1), *test.Val)
 	})
 
 	t.Run("float64", func(t *testing.T) {
@@ -309,6 +421,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		require.Equal(t, float64(1), test.Val)
 	})
 
+	t.Run("*float64", func(t *testing.T) {
+		test := &struct {
+			Val *float64 `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("1", test)
+		require.NoError(t, err)
+		require.Equal(t, float64(1), *test.Val)
+	})
+
 	t.Run("bool", func(t *testing.T) {
 		test := &struct {
 			Val bool `strum:"0"`
@@ -319,6 +441,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		require.True(t, test.Val)
 	})
 
+	t.Run("*bool", func(t *testing.T) {
+		test := &struct {
+			Val *bool `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("true", test)
+		require.NoError(t, err)
+		require.True(t, *test.Val)
+	})
+
 	t.Run("string", func(t *testing.T) {
 		test := &struct {
 			Val string `strum:"0"`
@@ -327,6 +459,16 @@ func TestUnmarshal_primitives(t *testing.T) { //nolint:funlen
 		err := strum.Unmarshal("abc", test)
 		require.NoError(t, err)
 		require.Equal(t, "abc", test.Val)
+	})
+
+	t.Run("*string", func(t *testing.T) {
+		test := &struct {
+			Val *string `strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("abc", test)
+		require.NoError(t, err)
+		require.Equal(t, "abc", *test.Val)
 	})
 }
 
