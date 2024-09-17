@@ -53,6 +53,7 @@ func WithDelimiter(delimiter string) Option {
 	}
 }
 
+// WithFormatter registers the given formater under the given name.
 func WithFormatter(name string, transformer Formatter) Option {
 	return func(o *options) {
 		if o.formatters == nil {

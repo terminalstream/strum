@@ -43,6 +43,14 @@ linters-settings:
     for-loops: true
   revive:
     enable-all-rules: true
+    rules:
+      - name: exported # TODO not working
+        severity: error
+        disabled: false
+        arguments:
+          - "preserveScope"
+          - "checkPrivateReceivers"
+          - "sayRepetitiveInsteadOfStutters"
   gci:
     sections:
       - standard
