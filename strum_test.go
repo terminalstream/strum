@@ -15,6 +15,8 @@
 package strum_test
 
 import (
+	"errors"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -479,6 +481,37 @@ func TestUnmarshal_builtin(t *testing.T) { //nolint:funlen,maintidx
 		err := strum.Unmarshal("abc", test)
 		require.NoError(t, err)
 		require.Equal(t, []byte("abc"), test.Val)
+	})
+}
+
+func TestUnmarshal_formatter(t *testing.T) {
+	t.Run("formats the string prior to parsing and assigning", func(t *testing.T) {
+		test := &struct {
+			Val string `strform:"test" strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("abcdefg", test,
+			strum.WithFormatter("test", func(s string) (string, error) {
+				return strings.ToUpper(s), nil
+			}),
+		)
+		require.NoError(t, err)
+		require.Equal(t, "ABCDEFG", test.Val)
+	})
+
+	t.Run("returns an error if the formatter returns an error", func(t *testing.T) {
+		expected := errors.New("test")
+
+		test := &struct {
+			Val string `strform:"test" strum:"0"`
+		}{}
+
+		err := strum.Unmarshal("abcdefg", test,
+			strum.WithFormatter("test", func(s string) (string, error) {
+				return "", expected
+			}),
+		)
+		require.ErrorIs(t, err, expected)
 	})
 }
 

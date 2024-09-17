@@ -25,6 +25,8 @@ import (
 const (
 	// TagName is this lib's struct tag.
 	TagName = "strum"
+	// FormatterTagName is the struct tag that identifies the field's Formatter.
+	FormatterTagName = "strform"
 	// DefaultDelimiter is the default one used to separate the start and end indexes.
 	DefaultDelimiter = ","
 )
@@ -34,8 +36,12 @@ var defaultOptions = &options{
 }
 
 type options struct {
-	delimiter string
+	delimiter  string
+	formatters map[string]Formatter
 }
+
+// Formatter formats the input string before it is parsed and assigned to the field.
+type Formatter func(string) (string, error)
 
 // Option allows some customization of the Unmarshal process.
 type Option func(*options)
@@ -47,13 +53,23 @@ func WithDelimiter(delimiter string) Option {
 	}
 }
 
+func WithFormatter(name string, transformer Formatter) Option {
+	return func(o *options) {
+		if o.formatters == nil {
+			o.formatters = make(map[string]Formatter)
+		}
+
+		o.formatters[name] = transformer
+	}
+}
+
 // Unmarshal unmarshals strings.
 //
 // If a field is tagged with 'strum' it assigns the indicated substring, otherwise the field is
 // ignored.
 //
 // 'strum' has the format `strum:"startIdx{delimiter}endIdx"` where both startIdx and endIdx are
-// optional, but at least one must be present. {delimiter} is specified by the user
+// integers and are optional, but at least one must be present. {delimiter} is specified by the user
 // (default is ","). {delimiter} is mandatory unless only startIdx is provided. Errors are raised
 // if startIdx or endIdx exceed the string's bounds.
 func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyclo
@@ -127,7 +143,22 @@ func Unmarshal(line string, v any, opts ...Option) error { //nolint:funlen,gocyc
 			return fmt.Errorf("invalid indexes on field %q: %w", f.Name, err)
 		}
 
-		val, err := valuer(line[startIdx:endIdx])
+		strVal := line[startIdx:endIdx]
+
+		formatterName, ok := f.Tag.Lookup(FormatterTagName)
+		if ok {
+			formatter, ok := options.formatters[formatterName]
+			if !ok {
+				return fmt.Errorf("unknown formatter %q on field %q", formatterName, f.Name)
+			}
+
+			strVal, err = formatter(strVal)
+			if err != nil {
+				return fmt.Errorf("formatter failed on field %q: %w", f.Name, err)
+			}
+		}
+
+		val, err := valuer(strVal)
 		if err != nil {
 			return fmt.Errorf(
 				"cannot assign value %q to field %q: %w", line[startIdx:endIdx], f.Name, err,
