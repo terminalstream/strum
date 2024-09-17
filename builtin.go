@@ -21,9 +21,6 @@ import (
 
 type primitiveValuer func(s string) (reflect.Value, error)
 
-//nolint:godox
-// TODO support []byte
-
 var builtin = map[reflect.Kind]primitiveValuer{
 	reflect.Bool: func(s string) (reflect.Value, error) {
 		return valueOrError(strconv.ParseBool(s))

@@ -27,7 +27,7 @@ coverage:
 
 lint:
 	@echo "Running linters..."
-	@docker run --rm -v $(shell pwd):/app -w /app ${GOLANGCILINT} golangci-lint run -v
+	@docker run --rm -v $(shell pwd):/app -w /app ${GOLANGCILINT} golangci-lint run
 
 license:
 	@echo "Verifying license headers..."
